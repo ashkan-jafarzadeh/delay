@@ -2,7 +2,6 @@ config.yaml
 build/
 .idea
 .DS_Store
-.env
 /cmd/migrate/migrate
 /cmd/server/server
 migrate
