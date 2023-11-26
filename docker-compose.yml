@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "8001:8001"
+    restart: on-failure
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+      - rabbit
+    networks:
+      - app
+
+  mysql:
+    image: 'mysql:latest'
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
+    environment:
+      SNAPPFOOD_MYSQL_HOST: '%'
+      SNAPPFOOD_MYSQL_PORT: '3306'
+      SNAPPFOOD_MYSQL_USERNAME: 'snappfood'
+      SNAPPFOOD_MYSQL_PASSWORD: 'pass'
+      SNAPPFOOD_MYSQL_DATABASE: 'snappfood'
+      MYSQL_ROOT_PASSWORD: 'pass'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: 'snappfood'
+      MYSQL_USER: 'snappfood'
+      MYSQL_PASSWORD: 'pass'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - 'snappfood-mysql:/var/lib/mysql'
+    networks:
+      - app
+
+  rabbit:
+    image: rabbitmq:3.11-management-alpine
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      - RABBITMQ_DEFAULT_USER=snappfood
+      - RABBITMQ_DEFAULT_PASS=snappfood
+    networks:
+      - app
+
+volumes:
+  snappfood-mysql:
+
+networks:
+  app:
+    name: app
